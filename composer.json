@@ -7,7 +7,7 @@
     "keywords": ["yii2", "activerecord", "relations"],
     "license": "MIT",
     "support": {
-        "source": "https://github.com/yiisoft/yii2"
+        "source": "https://github.com/vtvz/yii2-relations"
     },
     "authors": [
         {
