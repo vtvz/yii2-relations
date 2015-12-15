@@ -24,5 +24,11 @@
         "psr-4": {
             "vtvz\\relations\\": ""
         }
+    },
+
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.0"
+        }
     }
 }

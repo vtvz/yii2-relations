@@ -93,6 +93,8 @@ class Relation extends BaseRelation
             return (bool) $this->unlink;
         } elseif ($this->getType() == self::TYPE_MANY) {
             return true;
+        } elseif ($this->getDelete()) {
+            return true;
         }
 
         return false;
