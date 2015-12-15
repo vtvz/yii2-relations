@@ -1,0 +1,28 @@
+{
+    "name": "vtvz/yii2-relations",
+
+    "type": "yii2-extension",
+
+    "description": "Support simple ActiveRecord relations",
+    "keywords": ["yii2", "activerecord", "relations"],
+    "license": "MIT",
+    "support": {
+        "source": "https://github.com/yiisoft/yii2"
+    },
+    "authors": [
+        {
+            "name": "Vitaly Zaslavsky",
+            "email": "vtvz.ru@gmail.com"
+        }
+    ],
+
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "vtvz\\relations\\": ""
+        }
+    }
+}
