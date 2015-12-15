@@ -33,55 +33,52 @@ Usage
 
 ```php
 <?php
-    namespace common\models;
+namespace common\models;
 
-    use vtvz\relations\Relations;
+use vtvz\relations\Relations;
 
-    /**
-    *
-    */
-    class Order extends Model
+class Order extends Model
+{
+    public function behaviors()
     {
-        public function behaviors()
-        {
-            return [
+        return [
+            'relations' => [
+                'class' => Relations::className(),
                 'relations' => [
-                    'class' => Relations::className(),
-                    'relations' => [
-                        /* many to many relation type */
-                        'items' => [
-                            'model' => Item::className(),
-                            'link' => ['id' => 'itemId'],
-                            'viaTable' => 'order_has_item',
-                            'viaTableLink' => ['orderId' => 'id'],
-                            'inverseOf' => 'orders',
-                        ],
-                        /* one (customer) to many (orders) relation type */
-                        'customer' => [
-                            'model' => Customer::className(),
-                            'link' => ['id' => 'customerId'],
-                            'type' => 'one',
-                        ],
-                        /* one to one relation type with delete */
-                        'orderInfo' => [
-                            'model' => OrderInfo::className(),
-                            'link' => ['id' => 'id'],
-                            'type' => 'one',
-                            'delete' => true,
-                        ],
-                        /* many (somethings) to one (order) relation type.
-                        All somethings deletes with its order */
-                        'somethings' => [
-                            'model' => Something::className(),
-                            'link' => ['orderId' => 'id'],
-                            'type' => 'many',
-                        ]
+                    /* many to many relation type */
+                    'items' => [
+                        'model' => Item::className(),
+                        'link' => ['id' => 'itemId'],
+                        'viaTable' => 'order_has_item',
+                        'viaTableLink' => ['orderId' => 'id'],
+                        'inverseOf' => 'orders',
                     ],
+                    /* one (customer) to many (orders) relation type */
+                    'customer' => [
+                        'model' => Customer::className(),
+                        'link' => ['id' => 'customerId'],
+                        'type' => 'one',
+                    ],
+                    /* one to one relation type with delete */
+                    'orderInfo' => [
+                        'model' => OrderInfo::className(),
+                        'link' => ['id' => 'id'],
+                        'type' => 'one',
+                        'delete' => true,
+                    ],
+                    /* many (somethings) to one (order) relation type.
+                    All somethings deletes with its order */
+                    'somethings' => [
+                        'model' => Something::className(),
+                        'link' => ['orderId' => 'id'],
+                        'type' => 'many',
+                    ]
                 ],
-            ];
-        }
+            ],
+        ];
     }
- ?>
+}
+?>
 ```
 
 Примечание
