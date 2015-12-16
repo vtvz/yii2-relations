@@ -50,7 +50,7 @@ class Order extends Model
                         'model' => Item::className(),
                         'link' => ['id' => 'itemId'],
                         'viaTable' => 'order_has_item',
-                        'viaTableLink' => ['orderId' => 'id'],
+                        'viaLink' => ['orderId' => 'id'],
                         'inverseOf' => 'orders',
                     ],
                     /* one (customer) to many (orders) relation type */

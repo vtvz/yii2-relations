@@ -17,7 +17,7 @@ abstract class BaseRelation extends Component
     protected $inverseOf;
     protected $via;
     protected $viaTable;
-    protected $viaTableLink;
+    protected $viaLink;
 
     protected $delete = null;
     protected $unlink = null;
@@ -69,14 +69,14 @@ abstract class BaseRelation extends Component
         $this->viaTable = $viaTable;
     }
 
-    public function getViaTableLink()
+    public function getViaLink()
     {
-        return $this->viaTableLink;
+        return $this->viaLink;
     }
 
-    public function setViaTableLink($viaTableLink)
+    public function setViaLink($viaLink)
     {
-        $this->viaTableLink = $viaTableLink;
+        $this->viaLink = $viaLink;
     }
 
     public function getDelete()

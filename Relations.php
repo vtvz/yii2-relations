@@ -33,7 +33,7 @@ class Relations extends Behavior
                 $name = $i;
             }
 
-            $name = $this->prepareName($name);
+            $name = $this->prepareRelationName($name);
 
             $relation['name'] = $name;
             $relations[$name] = $relation;
@@ -77,7 +77,7 @@ class Relations extends Behavior
      * @param string $name Имя связи
      * @return string Нормализованное имя связи
      */
-    public function prepareName($name)
+    public function prepareRelationName($name)
     {
         return strtolower($name);
     }
@@ -89,7 +89,7 @@ class Relations extends Behavior
      */
     public function hasRelation($name)
     {
-        $name = $this->prepareName($name);
+        $name = $this->prepareRelationName($name);
 
         return key_exists($name, $this->relations);
     }
@@ -105,7 +105,7 @@ class Relations extends Behavior
             throw new InvalidParamException("Relation '$name' isn't exist");
         }
 
-        $preparedName = $this->prepareName($name);
+        $preparedName = $this->prepareRelationName($name);
 
         if (!isset($this->localRelations[$preparedName])) {
             $this->buildRelation($name);
@@ -117,7 +117,7 @@ class Relations extends Behavior
     private function buildRelation($name)
     {
         Yii::trace("Build relation '$name'", __METHOD__);
-        $preparedName = $this->prepareName($name);
+        $preparedName = $this->prepareRelationName($name);
 
         $config = [
             'class' => $this->relationClass,
@@ -132,11 +132,12 @@ class Relations extends Behavior
     }
 
     /**
-     * Проверка на существование геттера на связь
-     * @param type $name
-     * @return type
+     * Проверка на существование связи по геттеру
+     * @param string $name Имя геттера
+     * @param bool $onlyCheck Если true, проверяет только существование связи по геттеру. Если false, вернет связь.
+     * @return bool|yii\db\ActiveQueryInterface
      */
-    public function byRelationGetter($getter, $onlyCheck = false)
+    private function hasRelationGetter($getter, $onlyCheck = true)
     {
         if (strncmp('get', $getter, 3) === 0) {
             $name = substr($getter, 3);
@@ -148,6 +149,8 @@ class Relations extends Behavior
                 return $this->getRelation($name)->get();
             }
         }
+
+        return false;
     }
 
     /**
@@ -219,7 +222,7 @@ class Relations extends Behavior
             return true;
         }
 
-        if ($this->byRelationGetter($name, true)) {
+        if ($this->hasRelationGetter($name)) {
             return true;
         }
 
@@ -236,7 +239,7 @@ class Relations extends Behavior
             return $this->getRelation($name)->create($params);
         }
 
-        if ($relation = $this->byRelationGetter($name)) {
+        if ($relation = $this->hasRelationGetter($name, false)) {
             return $relation;
         }
 

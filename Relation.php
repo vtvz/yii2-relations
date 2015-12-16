@@ -36,8 +36,8 @@ class Relation extends BaseRelation
      */
     public function get()
     {
-        if (!empty($this->getViaTable()) && empty($this->getViaTableLink())) {
-            throw new InvalidConfigException("With param viaTable sould be link in param viaTableLink");
+        if (!empty($this->getViaTable()) && empty($this->getViaLink())) {
+            throw new InvalidConfigException("With param viaTable sould be link in param viaLink");
         }
 
         $type = $this->types[$this->getType()];
@@ -45,7 +45,7 @@ class Relation extends BaseRelation
         $relation = $this->owner->{$type}($this->model, $this->getLink());
 
         if (!empty($this->getViaTable())) {
-            $relation->viaTable($this->getViaTable(), $this->getViaTableLink());
+            $relation->viaTable($this->getViaTable(), $this->getViaLink());
         }
 
         if (!empty($this->getVia())) {
@@ -118,7 +118,7 @@ class Relation extends BaseRelation
             return $this->type;
         }
 
-        if (!empty($this->viaTable)) {
+        if (!empty($this->viaTable) || !empty($this->via)) {
             return self::TYPE_MANY;
         }
 
