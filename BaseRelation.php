@@ -12,6 +12,7 @@ abstract class BaseRelation extends Component
     public $owner;
 
     public $model;
+    public $callable = null;
 
     protected $link;
     protected $inverseOf;

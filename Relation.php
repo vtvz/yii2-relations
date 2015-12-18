@@ -46,14 +46,16 @@ class Relation extends BaseRelation
 
         if (!empty($this->getViaTable())) {
             $relation->viaTable($this->getViaTable(), $this->getViaLink());
-        }
-
-        if (!empty($this->getVia())) {
+        } elseif (!empty($this->getVia())) {
             $relation->via($this->via);
         }
 
         if (!empty($this->inverseOf)) {
             $relation->inverseOf($this->inverseOf);
+        }
+
+        if ($this->callable !== null) {
+            $relation = call_user_func($this->callable, $relation);
         }
 
         return $relation;
