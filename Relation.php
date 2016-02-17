@@ -75,9 +75,9 @@ class Relation extends BaseRelation
             throw new InvalidValueException("Value shoud be valid");
         }
 
-        if (!empty($this->getViaTable()) && $value->getIsNewRecord()) {
-            if (!$value->save(false)) {
-                throw new InvalidValueException("Can't save value");
+        if (!empty($this->getViaTable()) && ($value->getIsNewRecord() || $this->owner->getIsNewRecord())) {
+            if (!$value->save(false) || $this->owner->save()) {
+                throw new InvalidValueException('Can\'t save value');
             }
         }
 

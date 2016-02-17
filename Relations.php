@@ -5,12 +5,13 @@ use \Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\base\InvalidParamException;
 
 class Relations extends Behavior
 {
     public $relations = [];
 
-    protected $localRelations = [];
+    protected $_relations = [];
 
     public $relationConfig = [];
 
@@ -101,17 +102,18 @@ class Relations extends Behavior
      */
     public function getRelation($name)
     {
-        if (!key_exists($name, $this->relations)) {
+        $preparedName = $this->prepareRelationName($name);
+
+        if (!key_exists($preparedName, $this->relations)) {
             throw new InvalidParamException("Relation '$name' isn't exist");
         }
 
-        $preparedName = $this->prepareRelationName($name);
 
-        if (!isset($this->localRelations[$preparedName])) {
+        if (!isset($this->_relations[$preparedName])) {
             $this->buildRelation($name);
         }
 
-        return $this->localRelations[$preparedName];
+        return $this->_relations[$preparedName];
     }
 
     private function buildRelation($name)
@@ -126,9 +128,9 @@ class Relations extends Behavior
 
         $config = ArrayHelper::merge($config, $this->relationConfig);
 
-        $config = ArrayHelper::merge($config, $this->relations[$name]);
+        $config = ArrayHelper::merge($config, $this->relations[$preparedName]);
 
-        $this->localRelations[$preparedName] = Yii::createObject($config);
+        $this->_relations[$preparedName] = Yii::createObject($config);
     }
 
     /**
