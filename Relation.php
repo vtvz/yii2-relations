@@ -20,13 +20,27 @@ class Relation extends BaseRelation
         self::TYPE_MANY => 'hasMany'
     ];
 
-    public function beforeDelete($event)
+
+    public function unlink()
     {
         if (!$this->getUnlink()) {
             return true;
         }
 
         $this->owner->unlinkAll($this->name, $this->getDelete());
+
+        return true;
+    }
+
+    public function save()
+    {
+        foreach ($this->populations as $population) {
+            if (!$population->save()) {
+                throw new InvalidValueException('Can\'t save populated value');
+            }
+
+            $this->owner->link($this->name, $population);
+        }
 
         return true;
     }
@@ -44,18 +58,19 @@ class Relation extends BaseRelation
 
         $relation = $this->owner->{$type}($this->model, $this->getLink());
 
+        if ($this->getCallable instanceof \Closure) {
+            $relation = call_user_func($this->getCallable, $relation);
+        }
+
         if (!empty($this->getViaTable())) {
             $relation->viaTable($this->getViaTable(), $this->getViaLink());
         } elseif (!empty($this->getVia())) {
             $relation->via($this->via);
         }
 
+
         if (!empty($this->inverseOf)) {
             $relation->inverseOf($this->inverseOf);
-        }
-
-        if ($this->callable !== null) {
-            $relation = call_user_func($this->callable, $relation);
         }
 
         return $relation;
@@ -71,17 +86,24 @@ class Relation extends BaseRelation
             throw new InvalidConfigException("Property 'inverseOf' shoudn't be empty");
         }
 
+        if ($this->addCallable instanceof \Closure) {
+            $value = call_user_func($this->addCallable, $value);
+        }
+
         if (!$value->validate()) {
             throw new InvalidValueException("Value shoud be valid");
         }
 
-        if (!empty($this->getViaTable()) && $value->getIsNewRecord()) {
-            if (!$value->save(false)) {
-                throw new InvalidValueException("Can't save value");
-            }
-        }
+        $this->populations[] = $value;
 
-        $this->owner->link($this->name, $value);
+        /*if (!empty($this->getViaTable()) && ($value->getIsNewRecord() || $this->owner->getIsNewRecord())) {
+            if (!$value->save(false) || $this->owner->save()) {
+                throw new InvalidValueException('Can\'t save value');
+            }
+        }*/
+
+//        $this->owner->link($this->name, $value);
+
     }
 
     public function create($params = [])

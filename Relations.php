@@ -5,12 +5,13 @@ use \Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\base\InvalidParamException;
 
 class Relations extends Behavior
 {
     public $relations = [];
 
-    protected $localRelations = [];
+    protected $_relations = [];
 
     public $relationConfig = [];
 
@@ -42,36 +43,6 @@ class Relations extends Behavior
         $this->relations = $relations;
     }
 
-    public function events()
-    {
-        return [
-            ActiveRecord::EVENT_BEFORE_DELETE => 'beforeDelete',
-            ActiveRecord::EVENT_AFTER_DELETE  => 'afterDelete'
-        ];
-    }
-
-    public function beforeDelete($event)
-    {
-        foreach ($this->relations as $name => $relation) {
-            $relationObject = $this->getRelation($name);
-
-            if (method_exists($relationObject, 'beforeDelete')) {
-                $relationObject->beforeDelete($event);
-            }
-        }
-    }
-
-    public function afterDelete($event)
-    {
-        foreach ($this->relations as $name => $relation) {
-            $relationObject = $this->getRelation($name);
-
-            if (method_exists($relationObject, 'afterDelete')) {
-                $relationObject->beforeDelete($event);
-            }
-        }
-    }
-
     /**
      * Приведение имени связи к единому стандарту
      * @param string $name Имя связи
@@ -101,17 +72,29 @@ class Relations extends Behavior
      */
     public function getRelation($name)
     {
-        if (!key_exists($name, $this->relations)) {
+        $preparedName = $this->prepareRelationName($name);
+
+        if (!key_exists($preparedName, $this->relations)) {
             throw new InvalidParamException("Relation '$name' isn't exist");
         }
 
-        $preparedName = $this->prepareRelationName($name);
 
-        if (!isset($this->localRelations[$preparedName])) {
+        if (!isset($this->_relations[$preparedName])) {
             $this->buildRelation($name);
         }
 
-        return $this->localRelations[$preparedName];
+        return $this->_relations[$preparedName];
+    }
+
+    public function saveRelations()
+    {
+        $result = true;
+        foreach ($this->_relations as $relation) {
+            /** @var $relation Relation */
+            $result = $result && $relation->save();
+        }
+
+        return $result;
     }
 
     private function buildRelation($name)
@@ -122,13 +105,14 @@ class Relations extends Behavior
         $config = [
             'class' => $this->relationClass,
             'owner' => $this->owner,
+            'relationsClass' => $this,
         ];
 
         $config = ArrayHelper::merge($config, $this->relationConfig);
 
-        $config = ArrayHelper::merge($config, $this->relations[$name]);
+        $config = ArrayHelper::merge($config, $this->relations[$preparedName]);
 
-        $this->localRelations[$preparedName] = Yii::createObject($config);
+        $this->_relations[$preparedName] = Yii::createObject($config);
     }
 
     /**
@@ -153,6 +137,7 @@ class Relations extends Behavior
         return false;
     }
 
+
     /**
      * @inheritdoc
      */
@@ -162,7 +147,7 @@ class Relations extends Behavior
             return true;
         }
 
-        parent::hasProperty($name, $checkVars);
+        return parent::hasProperty($name, $checkVars);
     }
 
     /**
@@ -174,7 +159,7 @@ class Relations extends Behavior
             return true;
         }
 
-        parent::canGetProperty($name, $checkVars);
+        return parent::canGetProperty($name, $checkVars);
     }
 
     /**
@@ -186,7 +171,7 @@ class Relations extends Behavior
             return true;
         }
 
-        parent::canSetProperty($name, $checkVars);
+        return parent::canSetProperty($name, $checkVars);
     }
 
     /**
@@ -198,7 +183,7 @@ class Relations extends Behavior
             return $this->getRelation($name)->get();
         }
 
-        parent::__get($name);
+        return parent::__get($name);
     }
 
     /**
@@ -210,7 +195,7 @@ class Relations extends Behavior
             return $this->getRelation($name)->add($value);
         }
 
-        parent::__set($name, $value);
+        return parent::__set($name, $value);
     }
 
     /**
@@ -227,7 +212,7 @@ class Relations extends Behavior
         }
 
 
-        parent::hasMethod($name);
+        return parent::hasMethod($name);
     }
 
     /**
@@ -243,6 +228,6 @@ class Relations extends Behavior
             return $relation;
         }
 
-        parent::__call($name, $params);
+        return parent::__call($name, $params);
     }
 }
