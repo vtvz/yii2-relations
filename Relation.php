@@ -94,9 +94,13 @@ class Relation extends BaseRelation
             throw new InvalidValueException("Value shoud be valid");
         }
 
+<<<<<<< HEAD
         $this->populations[] = $value;
 
         /*if (!empty($this->getViaTable()) && ($value->getIsNewRecord() || $this->owner->getIsNewRecord())) {
+=======
+        if (!empty($this->getViaTable()) && ($value->getIsNewRecord() || $this->owner->getIsNewRecord())) {
+>>>>>>> 6015c9d70c6c6984244cf5f58d680d173aaa064d
             if (!$value->save(false) || $this->owner->save()) {
                 throw new InvalidValueException('Can\'t save value');
             }
